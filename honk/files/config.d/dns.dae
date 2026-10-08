@@ -1,23 +1,56 @@
 # dns.dae
 dns {
-    bind: 'tcp+udp://[::]:53530'
+    ipversion_prefer: 4
+    bind: 'tcp+udp://[::]:1053'
     client_subnet: auto
-    #ipversion_prefer: 4
     upstream {
-        local: 'udp://127.0.0.1:53' -> direct
-        remote: 'tcp+udp://one.one.one.one:53'
+        default: 'udp://222.172.200.68' -> direct
+        alidns: 'h3://223.5.5.5/dns-query?tls_server_name=dns.alidns.com' -> direct
+        #cloudflare: 'https://8.8.8.8/dns-query?tls_server_name=dns.google' -> US-V6
+        cloudflare: 'h3://223.6.6.6/dns-query?tls_server_name=dns.alidns.com' -> direct
     }
     routing {
         request {
-            qtype(https) -> reject
-            qname(geosite: gfw) -> remote
-            fallback: local
+            ### Node
+            #sub(ytoo-ss) -> alidns
+            #sub(bitz) -> alidns
+            # node(name_keyword: hk) -> alidns
+            #subnode(subtag: ytoo-ss) -> alidns
+            # subnode(ytoo-anytls) -> alidns
+            #subnode(bitz) -> alidns
+            #qname(full:dns.cloudflare.com) -> alidns
+            qname(full:stun.fitauto.ru) -> default
+            qname(full:turn.cloudflare.com) -> default
+            qname(suffix: 11992169.xyz) -> alidns
+            qname(suffix: bnsepserv.com) -> alidns
+            qname(suffix: ai-163cdn.com) -> alidns
+            qname(suffix: oxycontinon.com) -> alidns
+            ### Bing
+            qname(geosite:bing) -> cloudflare
+            ### Wikipedia
+            qname(suffix: wikipedia.org) -> cloudflare
+            ### 小米系统更新CDN
+            qname(suffix: cdn.pandora.xiaomi.com) -> default
+            ### 小米电视
+            qname(suffix: tv.global.mi.com) -> default
+            ### Special
+            qname(full:turn.cloudflare.com,full: stun.fitauto.ru,full: challenges.cloudflare.com,full: aod.itunes.apple.com,full: appldnld.apple.com,full: apptrailers.itunes.apple.com,full: gs-loc-cn.apple.com,full: iosapps.itunes.apple.com,full: music.apple.com,full: mvod.itunes.apple.com,full: osxapps.itunes.apple.com,full: supportdownload.apple.com,full: swcdn.apple.com,full: updates-http.cdn-apple.com,full: safebrowsing.googleapis.com,full: cm.steampowered.com,full: ol.epicgames.com,full: csgo.wmsj.cn,full: dota2.wmsj.cn,full: wmsjsteam.com,full: dl.steam.clngaa.com,full: dl.steam.ksyna.com,full: gstore.val.manlaxy.com,full: st.dl.bscstorage.net,full: st.dl.eccdnx.com,full: st.dl.pinyuncloud.com,full: steampipe.steamcontent.tnkjmec.com,full: steampowered.com.8686c.com,full: steamstatic.com.8686c.com,full: steambroadcast.akamaized.net,full: steamcdn-a.akamaihd.net,full: steamcommunity-a.akamaihd.net,full: steamstore-a.akamaihd.net,full: steamusercontent-a.akamaihd.net,full: steamuserimages-a.akamaihd.net,full: tesla-cdn.thron.cn,full: tesla-cdn.thron.com,full: uplaypc-s-ubisoft.cdn.ubi.com,suffix: dl.google.com,suffix: msftconnecttest.com,suffix: auth.com,suffix: dl.playstation.net,suffix: steamcontent.com,suffix: steamserver.net,suffix: steamchina.com,suffix: solarcity.com,suffix: tesla.cn,suffix: tesla.com,suffix: tesla.com.cn,suffix: teslamotors.cn,suffix: teslamotors.com,suffix: teslamotors.com.cn,suffix: ts.la,suffix: app-measurement.com,suffix: xunlei.com,suffix: audiences.me,suffix: awesome-hd.me,suffix: broadcasthe.net,suffix: chdbits.co,suffix: classix-unlimited.co.uk,suffix: dmhy.best,suffix: empornium.me,suffix: gazellegames.net,suffix: hdchina.org,suffix: hdsky.me,suffix: icetorrent.org,suffix: jpopsuki.eu,suffix: keepfrds.com,suffix: madsrevolution.net,suffix: m-team.cc,suffix: nanyangpt.com,suffix: ncore.cc,suffix: open.cd,suffix: ourbits.club,suffix: passthepopcorn.me,suffix: privatehd.to,suffix: redacted.ch,suffix: sandai.net,suffix: springsunday.net,suffix: tjupt.org,suffix: totheglory.im,suffix: audiences.me,suffix: smtp,keyword:epicgames,keyword:announce,keyword:torrent,keyword:test-ipv6,keyword:testipv6) -> default
+            ### Must Use Default
+            qname(geosite:category-ntp@cn,geosite:connectivity-check,geosite:category-games@cn,geosite:tencent,geosite:apple@cn,geosite:steam@cn,geosite:speedtest,geosite:geolocation-cn@cn) -> default
+            ### Other
+            qname(geosite:geolocation-cn) -> default
+            fallback: cloudflare
         }
         response {
-            upstream(remote) -> accept
-            qname(geosite: private) -> accept
-            ip(geoip: cn) -> accept
-            fallback: remote
+            # Trusted upstream. Always accept its result.
+            upstream(cloudflare) -> accept
+            # Possibly polluted, re-lookup using cloudflaredns.
+            upstream(alidns) && ip(geoip:private) && !qname(geosite:cn) -> cloudflare
+            upstream(alidns) && ip(225.0.0.0/8,226.0.0.0/7,228.0.0.0/6,232.0.0.0/8,235.0.0.0/8,236.0.0.0/6) && !qname(geosite:cn) -> cloudflare
+            upstream(default) && ip(geoip:private) && !qname(geosite:cn) -> cloudflare
+            upstream(default) && ip(225.0.0.0/8,226.0.0.0/7,228.0.0.0/6,232.0.0.0/8,235.0.0.0/8,236.0.0.0/6) && !qname(geosite:cn) -> cloudflare
+            # fallback is also called default.
+            fallback: accept
         }
     }
 }

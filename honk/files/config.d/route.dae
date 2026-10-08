@@ -1,27 +1,295 @@
 # route.dae
 routing {
-    pname(dnsmasq, zerotier-one) -> direct(must)
-    dip(224.0.0.0/3, 'ff00::/8', geoip: private) -> direct
-    domain(geosite: category-bank-cn, geosite: boc@!cn, geosite: synology) -> direct
-
-    # block quic, if u node has poor quic support, enable this line
-    # l4proto(udp) && dport(443) -> block
-
-    domain(geosite: spotify) -> proxy
-    domain(geosite: category-doh) -> proxy
-    domain(geosite: tiktok) -> proxy
-    domain(geosite: category-ai-!cn, geosite: github) -> proxy
-    domain(geosite: gfw) -> proxy
-
-    dip(geoip: telegram) -> proxy
-
-    dip(geoip: cn) -> direct
-    # geoip:cn always using chiness asn, can use domain rule to override
-    # domain(geosite: cn) -> direct
-
-    # using proxy for ssh, http, https, and common ports, avoid (bt, or other p2p)
-    # dport(22, 80, 443, 8080, 6443, 9090) -> proxy
-
-    # fallback: direct
-    fallback: proxy
+    dip(geoip:private) && dport(53) -> direct(must)
+    domain(geosite:private) -> direct(must)
+    dip(geoip:private) -> direct(must)
+    dscp(0x4) -> direct(must)
+    ### Reserved IPv4 Address
+    dip(
+        225.0.0.0/8,
+        226.0.0.0/7,
+        228.0.0.0/6,
+        232.0.0.0/8,
+        235.0.0.0/8,
+        236.0.0.0/6,
+        255.255.255.255
+    ) -> direct(must)
+    ### DNS
+    #dip(222.172.200.68) -> direct(must)
+    #dip(223.5.5.5) -> direct(must)
+    #dip(1.1.1.1) -> US-V6
+    # domain(full:dns.cloudflare.com) -> US-V6
+    ### DIRECT MACHINE
+    # mac('BC:24:11:XX:XX:XX') -> direct(must)
+    mac('00:0C:29:6D:68:63') -> US-V6
+    ### 禁用Quic，避免CPU高负载及内存泄露
+    #l4proto(udp) && dport(443) -> block
+    ### Node
+    domain(suffix:11992169.xyz) -> direct
+    domain(suffix:bnsepserv.com) -> direct
+    domain(suffix:ai-163cdn.com) -> direct
+    domain(suffix:oxycontinon.com) -> direct
+    ### Stun
+    domain(full:stun.fitauto.ru) -> direct
+    domain(full:turn.cloudflare.com) -> direct
+    ### Bing
+    domain(geosite:bing) -> US-V6
+    ### Wikipedia
+    domain(suffix:wikipedia.org) -> US-V6
+    ### NTP,Games,MicrosoftCN,AppleCN,SteamCN
+    domain(
+        geosite:category-ntp@cn,
+        geosite:category-games@cn,
+        geosite:microsoft@cn,
+        geosite:apple@cn,
+        geosite:steam@cn
+    ) -> direct
+    ### 小米系统更新CDN
+    domain(suffix:cdn.pandora.xiaomi.com) -> direct
+    ### 小米电视
+    domain(suffix:tv.global.mi.com) -> direct
+    ### Speedtest
+    domain(geosite:speedtest)  -> direct
+    ### Special
+    domain(
+        full:challenges.cloudflare.com,
+        full:aod.itunes.apple.com,
+        full:appldnld.apple.com,
+        full:apptrailers.itunes.apple.com,
+        full:gs-loc-cn.apple.com,
+        full:iosapps.itunes.apple.com,
+        full:music.apple.com,
+        full:mvod.itunes.apple.com,
+        full:osxapps.itunes.apple.com,
+        full:supportdownload.apple.com,
+        full:swcdn.apple.com,
+        full:updates-http.cdn-apple.com,
+        full:safebrowsing.googleapis.com,
+        full:cm.steampowered.com,
+        full:ol.epicgames.com,
+        full:csgo.wmsj.cn,
+        full:dota2.wmsj.cn,
+        full:wmsjsteam.com,
+        full:dl.steam.clngaa.com,
+        full:dl.steam.ksyna.com,
+        full:gstore.val.manlaxy.com,
+        full:st.dl.bscstorage.net,
+        full:st.dl.eccdnx.com,
+        full:st.dl.pinyuncloud.com,
+        full:steampipe.steamcontent.tnkjmec.com,
+        full:steampowered.com.8686c.com,
+        full:steamstatic.com.8686c.com,
+        full:steambroadcast.akamaized.net,
+        full:steamcdn-a.akamaihd.net,
+        full:steamcommunity-a.akamaihd.net,
+        full:steamstore-a.akamaihd.net,
+        full:steamusercontent-a.akamaihd.net,
+        full:steamuserimages-a.akamaihd.net,
+        full:tesla-cdn.thron.cn,
+        full:tesla-cdn.thron.com,
+        full:uplaypc-s-ubisoft.cdn.ubi.com,
+        suffix:dl.google.com,
+        suffix:msftconnecttest.com,
+        suffix:auth.com,
+        suffix:dl.playstation.net,
+        suffix:steamcontent.com,
+        suffix:steamserver.net,
+        suffix:steamchina.com,
+        suffix:solarcity.com,
+        suffix:tesla.cn,
+        suffix:tesla.com,
+        suffix:tesla.com.cn,
+        suffix:teslamotors.cn,
+        suffix:teslamotors.com,
+        suffix:teslamotors.com.cn,
+        suffix:ts.la,
+        suffix:app-measurement.com,
+        suffix:xunlei.com,
+        suffix:audiences.me,
+        suffix:awesome-hd.me,
+        suffix:broadcasthe.net,
+        suffix:chdbits.co,
+        suffix:classix-unlimited.co.uk,
+        suffix:dmhy.best,
+        suffix:empornium.me,
+        suffix:gazellegames.net,
+        suffix:hdchina.org,
+        suffix:hdsky.me,
+        suffix:icetorrent.org,
+        suffix:jpopsuki.eu,
+        suffix:keepfrds.com,
+        suffix:madsrevolution.net,
+        suffix:m-team.cc,
+        suffix:nanyangpt.com,
+        suffix:ncore.cc,
+        suffix:open.cd,
+        suffix:ourbits.club,
+        suffix:passthepopcorn.me,
+        suffix:privatehd.to,
+        suffix:redacted.ch,
+        suffix:sandai.net,
+        suffix:springsunday.net,
+        suffix:tjupt.org,
+        suffix:totheglory.im,
+        suffix:audiences.me,
+        suffix:smtp,
+        keyword:epicgames,
+        keyword:announce,
+        keyword:torrent,
+        keyword:test-ipv6,
+        keyword:testipv6
+    ) -> direct
+    ### GeolocationCN
+    domain(geosite:geolocation-cn@cn) -> direct
+    ### AI Suite
+    domain(geosite:openai) -> US-V6
+    domain(
+        full:chat.openai.com.cdn.cloudflare.net,
+        full:openaiapi-site.azureedge.net,
+        full:openaicom-api-bdcpf8c6d2e9atf6.z01.azurefd.net,
+        full:openaicomproductionae4b.blob.core.windows.net,
+        full:production-openaicom-storage.azureedge.net,
+        full:o33249.ingest.sentry.io,
+        full:gateway.ai.cloudflare.com,
+        full:copilot.microsoft.com,
+        full:api.github.com,
+        full:ai.google.dev,
+        full:alkalicore-pa.clients6.google.com,
+        full:waa-pa.clients6.google.com,
+        full:sora-cdn.oaistatic.com,
+        suffix:augment.com,
+        suffix:augmentcode.com,
+        suffix:ai.com,
+        suffix:chatgpt.com,
+        suffix:openai.com,
+        suffix:cdn.oaistatic.com,
+        suffix:oaiusercontent.com,
+        suffix:cerebras.ai,
+        suffix:chorus.sh,
+        suffix:anthropic.com,
+        suffix:claude.ai,
+        suffix:claude.com,
+        suffix:claudeusercontent.com,
+        suffix:githubcopilot.com,
+        suffix:microsoftonline.com,
+        suffix:cursor.sh,
+        suffix:diabrowser.engineering,
+        suffix:dify.ai,
+        suffix:aistudio.google.com,
+        suffix:makersuite.google.com,
+        suffix:generativeai.google,
+        suffix:deepmind.com,
+        suffix:deepmind.google,
+        suffix:generativelanguage.googleapis.com,
+        suffix:geller-pa.googleapis.com,
+        suffix:proactivebackend-pa.googleapis.com,
+        suffix:aisandbox-pa.googleapis.com,
+        suffix:apis.google.com,
+        suffix:bard.google.com,
+        suffix:gemini.google,
+        suffix:gemini.google.com,
+        suffix:robinfrontend-pa.googleapis.com,
+        suffix:notebooklm.google,
+        suffix:notebooklm.google.com,
+        suffix:x.ai,
+        suffix:grok.com,
+        suffix:groq.com,
+        suffix:clipdrop.co,
+        suffix:jasper.ai,
+        suffix:jetbrains.ai,
+        suffix:meta.ai,
+        suffix:meta.com,
+        suffix:openart.ai,
+        suffix:openrouter.ai,
+        suffix:perplexity.ai,
+        suffix:poe.com,
+        suffix:apple-relay.apple.com,
+        suffix:apple-relay.fastly-edge.com,
+        suffix:apple-relay.cloudflare.com,
+        suffix:guzzoni.apple.com,
+        suffix:cp4.cloudflare.com,
+        suffix:gspe1-ssl.ls.apple.com,
+        suffix:smoot.apple.com,
+        suffix:sora.com,
+        suffix:trae.ai,
+        suffix:traeapi.us,
+        suffix:windsurf.com,
+        suffix:codeium.com,
+        suffix:codeiumdata.com,
+        suffix:zed.dev,
+        keyword:alkalimakersuite-pa.clients6.google.com
+    ) -> US-V6
+    domain(geosite:category-ai-!cn) -> US-V6
+    ### Steam
+    domain(
+        suffix:s.team,
+        suffix:steampowered.com,
+        suffix:steamcommunity.com,
+        suffix:steamgames.com,
+        suffix:steamusercontent.com,
+        suffix:steamstatic.com
+    ) -> US-V6
+    ### Github
+    domain(geosite:github) -> US-V6
+    ### Docker
+    domain(geosite:docker) -> US-V6
+    ### Openwrt
+    domain(geosite:openwrt) -> US-V6
+    ### Youtube
+    domain(geosite:youtube) -> US-V6
+    ### Google
+    domain(geosite:google) -> US-V6
+    dip(geoip:google) -> US-V6
+    ### Yahoo
+    domain(geosite:yahoo) -> US-V6
+    ### Disney
+    domain(geosite:disney) -> US-V6
+    ### Netflix
+    domain(geosite:netflix) -> US-V6
+    dip(geoip:netflix) -> US-V6
+    ### Primevideo
+    domain(geosite:primevideo) -> US-V6
+    ### Twitch
+    domain(geosite:twitch) -> US-V6
+    ### Spotify
+    domain(geosite:spotify) -> US-V6
+    ### Tiktok
+    domain(geosite:tiktok) -> US-V6
+    ### Twitch
+    domain(geosite:twitch) -> US-V6
+    ### Telegram
+    domain(geosite:telegram) -> US-V6
+    dip(geoip:telegram) -> US-V6
+    ### X
+    domain(geosite:x) -> US-V6
+    domain(geosite:twitter) -> US-V6
+    dip(geoip:twitter) -> US-V6
+    ### Instagram
+    domain(geosite:instagram) -> US-V6
+    ### Facebook
+    domain(geosite:facebook) -> US-V6
+    dip(geoip:facebook) -> US-V6
+    ### Porn
+    domain(geosite:category-porn) -> US-V6
+    ### GFW
+    #domain(geosite:gfw) -> US-V6
+    ### Other Proxy
+    domain(
+        full:repo.jellyfin.org,
+        full:global.synologydownload.com,
+        full:packages.synocommunity.com,
+        full:www.nodeseek.com,
+        suffix:metacubex.one,
+        suffix:sagernet.org
+    ) -> US-V6
+    #domain(geosite:geolocation-!cn) -> US-V6
+    ### Other Direct
+    domain(
+        geosite:geolocation-cn,
+        geosite:connectivity-check,
+        geosite:tencent
+    ) -> direct
+    # domain(geosite:cn) -> direct
+    dip(geoip:cn) -> direct
+    fallback:direct
 }

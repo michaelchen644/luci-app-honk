@@ -8,15 +8,14 @@ global {
     log_level: warn
     check_interval: 600s
     check_tolerance: 30ms
-    lan_interface: br-lan
+    lan_interface: br0.1
     wan_interface: auto
     auto_config_kernel_parameter: true
     data_dir: '/etc/honk'
     log_file: '/var/log/honk/honk.log'
     store_subscribe: true
-    # if u not using dns bind, set dial_mode to domain++ prefer
     dial_mode: domain
-    bootstrap_resolver: '223.5.5.5:53'
+    bootstrap_resolver: '222.172.200.68:53'
     tcp_check_url: 'https://www.gstatic.com/generate_204'
     tcp_check_http_method: HEAD
     udp_check_dns: 'dns.google.com:53', '8.8.8.8', '2001:4860:4860::8888'
@@ -25,6 +24,6 @@ global {
 assets {
     geodata {
         geosite: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/release/geosite.dat'
-        geoip: 'https://raw.githubusercontent.com/QiuSimons/geoip-moedove/refs/heads/main/geoip.dat'
+        geoip: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/release/geoip-lite.dat'
     }
 }
