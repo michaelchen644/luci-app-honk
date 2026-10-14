@@ -84,7 +84,7 @@ start_service() {
 
     set_chmod_640
     cleanup_netns
-    hijack_resolv_conf
+    # hijack_resolv_conf
 
     procd_open_instance "$CONF"
     # mimalloc pre-reserves a 1 GiB arena; VSZ only, but it dwarfs the real
@@ -101,7 +101,7 @@ start_service() {
 }
 
 service_stopped() {
-    restore_resolv_conf
+    # restore_resolv_conf
     cleanup_netns
 }
 
